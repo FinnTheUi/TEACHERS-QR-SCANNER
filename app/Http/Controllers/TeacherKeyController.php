@@ -12,6 +12,9 @@ use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class TeacherKeyController extends Controller
 {
+    /**
+     * Create a new controller instance.
+     */
     public function __construct()
     {
         $this->middleware('auth');
@@ -19,11 +22,14 @@ class TeacherKeyController extends Controller
 
     /**
      * Display a listing of the teacher's keys.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\View\View
      */
     public function index(Request $request)
     {
-        $keys = Auth::user()
-            ->teacherKeys()
+        $user = Auth::user();
+        $keys = $user->teacherKeys()
             ->when($request->active, function ($query) {
                 return $query->where('is_active', true)
                     ->where(function ($q) {

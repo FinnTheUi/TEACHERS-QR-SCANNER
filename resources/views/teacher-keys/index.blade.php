@@ -40,8 +40,8 @@
                             <td class="px-6 py-4">{{ $key->last_used_at ? $key->last_used_at->diffForHumans() : 'Never' }}</td>
                             <td class="px-6 py-4">{{ $key->expires_at ? $key->expires_at->format('Y-m-d') : 'Never' }}</td>
                             <td class="px-6 py-4">
-                                <button onclick="openEditModal({{ $key->id }})" class="text-indigo-600 hover:text-indigo-900 mr-2">Edit</button>
-                                <button onclick="deleteKey({{ $key->id }})" class="text-red-600 hover:text-red-900">Delete</button>
+                                <button onclick="openEditModal('{{ $key->id }}')" class="text-indigo-600 hover:text-indigo-900 mr-2">Edit</button>
+                                <button onclick="deleteKey('{{ $key->id }}')" class="text-red-600 hover:text-red-900">Delete</button>
                             </td>
                         </tr>
                     @empty
