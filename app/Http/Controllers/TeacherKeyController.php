@@ -2,16 +2,22 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use App\Models\TeacherKey;
+use Illuminate\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
 use App\Http\Requests\TeacherKeyRequest;
 use Illuminate\Support\Facades\Auth;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Foundation\Validation\ValidatesRequests;
 
 class TeacherKeyController extends Controller
 {
+    use AuthorizesRequests, ValidatesRequests;
+
     /**
      * Create a new controller instance.
      */
@@ -26,10 +32,13 @@ class TeacherKeyController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\View\View
      */
-    public function index(Request $request)
+    public function index(Request $request): View
     {
+        /** @var User $user */
         $user = Auth::user();
-        $keys = $user->teacherKeys()
+        
+        $keys = TeacherKey::query()
+            ->where('user_id', $user->id)
             ->when($request->active, function ($query) {
                 return $query->where('is_active', true)
                     ->where(function ($q) {
@@ -49,7 +58,13 @@ class TeacherKeyController extends Controller
     public function store(TeacherKeyRequest $request): JsonResponse
     {
         try {
-            $key = Auth::user()->teacherKeys()->create($request->validated());
+            /** @var User $user */
+            $user = Auth::user();
+            
+            $validatedData = $request->validated();
+            $validatedData['user_id'] = $user->id;
+            
+            $key = TeacherKey::create($validatedData);
             
             return response()->json([
                 'message' => 'Key created successfully',
@@ -62,6 +77,19 @@ class TeacherKeyController extends Controller
                 'message' => 'Failed to create key'
             ], 500);
         }
+    }
+
+    /**
+     * Display the specified key.
+     *
+     * @param  \App\Models\TeacherKey  $key
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function show(TeacherKey $key): JsonResponse
+    {
+        $this->authorize('view', $key);
+        
+        return response()->json($key);
     }
 
     /**
